@@ -1,0 +1,113 @@
+Acerca de este archivo
+
+A continuación se ofrece una descripción de cada columna del archivo FilmDetails.csv:
+
+id - (ID_PELICULA)
+Descripción: Identificador único para cada entrada de película en el conjunto de datos. Este ID se corresponde con el ID de la película en otras tablas relacionadas (por ejemplo, Movies, MoreInfo).
+Tipo: Entero
+
+director - (NOMBRE_DIRECTOR)
+Descripción: El nombre del director o directores que dirigieron la película. Este campo puede contener varios nombres separados por comas.
+Tipo: Texto
+
+top_billed - (TOP_NOMBRE_ACTORES)
+Descripción: Lista de los actores o actrices más destacados que aparecen en la película, normalmente presentada en formato separado por comas.
+Tipo: Texto
+
+budget_usd - (PRESUPUESTO_PELICULA_USD)
+Descripción: El presupuesto asignado para la producción de la película, expresado en dólares estadounidenses. Este valor puede ser NULL si no se dispone de información sobre el presupuesto.
+Tipo: Entero (nulo)
+
+revenue_usd - (INGRESO_TOTAL_PELICULA_USD)
+Descripción: Los ingresos totales generados por la película tras su estreno, expresados en dólares estadounidenses. Este valor también puede ser NULL si no se dispone de información sobre los ingresos.
+Tipo: Entero (nulo)
+
+Información adicional
+Fuente de datos: Estos datos proceden de The Movie Database (TMDb) e incluyen diversos atributos relacionados con las películas.
+Metodología de recopilación de datos: Estos datos se recopilaron utilizando scripts de Python que interactúan con la API de TMDb.
+
+Acerca de este archivo
+
+A continuación se ofrece una descripción detallada de cada columna del archivo MoreInfo.csv.
+
+Descripciones detalladas
+
+id - (ID_PELICULA)
+Descripción: Identificador único para cada entrada del conjunto de datos MoreInfo. Este ID se corresponde con el ID de la película en otras tablas relacionadas (por ejemplo, FilmDetails).
+Tipo: Entero
+
+runtime - (DURACION_PELICULA)
+Descripción: El tiempo total de ejecución de la película presentado en un formato legible para los humanos (por ejemplo, «2 h 22 min»). Esto permite a los usuarios evaluar rápidamente la duración de cada película.
+Tipo: Texto
+
+budget - (PRESUPUESTO)
+Descripción: El presupuesto asignado para la producción de la película, representado como una cadena con el símbolo del dólar (por ejemplo, «25 000 000 $»). Este valor puede ser NULL si no se dispone de información sobre el presupuesto.
+Tipo: Texto (nulo)
+
+revenue - (INGRESOS)
+Descripción: Los ingresos totales generados por la película tras su estreno, representados como una cadena con el símbolo del dólar (por ejemplo, «28 341 469 $»). Este valor también puede ser NULL si no se dispone de información sobre los ingresos.
+Tipo: Texto (nulo)
+
+film_id - (ID_PELICULA)
+Descripción: Una clave externa que enlaza con la tabla FilmDetails y representa el ID de la película correspondiente. Esto garantiza que exista una relación directa entre MoreInfo y FilmDetails.
+Tipo: Entero
+
+Acerca de este archivo
+
+A continuación se ofrece una descripción detallada de cada columna del archivo Movies.csv.
+
+Descripciones detalladas
+
+id - (ID_PELICULA)
+Descripción: Identificador único para cada entrada de película en el conjunto de datos. Este ID se corresponde con tablas relacionadas (por ejemplo, FilmDetails, MoreInfo).
+Tipo: Entero
+
+title - (TITULO_PELICULA)
+Descripción: El título de la película presentado como una cadena.
+Tipo: Texto
+
+generes - (GENERO_PELICULA)
+Descripción: Una lista de géneros asociados con la película, formateada como una cadena separada por comas (por ejemplo, «Drama, Crimen»).
+Tipo: Texto
+
+language - (IDIOMA_PELICULA)
+Descripción: El idioma principal en el que se produjo la película, representado como una cadena (por ejemplo, «en» para inglés).
+Tipo: Texto.
+
+user_score - (PUNTUACION_USUARIOS)
+Descripción: La puntuación media de los usuarios para la película, normalmente en una escala del 0 al 10.
+Tipo: Real
+
+runtime_hour - (DURACION_EN_HORAS)
+Descripción: La duración total de la película medida en horas.
+Tipo: Entero
+
+runtime_min - (DURACION_MINUTOS)
+Descripción: La duración total de la película medida en minutos.
+Tipo: Entero
+
+release_date - (FECHA_DE_ESTRENO)
+Descripción: La fecha en que se estrenó la película, con el formato AAAA-MM-DD.
+Tipo: Fecha
+
+vote_count - (NUMERO_DE_VOTOS)
+Descripción: El número total de votos (valoraciones) recibidos por la película, lo que indica su popularidad y nivel de compromiso.
+Tipo: Entero
+
+Acerca de este archivo
+
+A continuación se ofrece una descripción detallada de cada columna del archivo Movies.csv.
+
+Descripciones detalladas
+
+id - (ID_PELICULA)
+Descripción: Identificador único para cada entrada del conjunto de datos PosterPath. Este ID se corresponde con el ID de la película en otras tablas relacionadas (por ejemplo, Movies).
+Tipo: Entero
+
+poster_path - (RUTA_POSTER)
+Descripción: El enlace URL a la imagen del póster de la película, que se puede utilizar para mostrar el póster en aplicaciones o sitios web. Este enlace apunta a una imagen de alta resolución alojada en el servidor de The Movie Database (TMDb).
+Tipo: Texto
+
+backdrop_path - (RUTA_URL)
+Descripción: El enlace URL a la imagen de fondo de la película, que normalmente se utiliza como imagen de fondo para mostrar información sobre la película. Este enlace también apunta a una imagen de alta resolución alojada en TMDb.
+Tipo: Texto
