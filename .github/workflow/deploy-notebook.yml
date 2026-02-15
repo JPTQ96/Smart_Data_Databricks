@@ -19,7 +19,7 @@ jobs:
         ORIGIN_TOKEN=${{ secrets.DATABRICKS_ORIGIN_TOKEN }}
         NOTEBOOK_BASE="/Workspace/Users/ejemplo1965@outlook.es/Smart_Data_Databricks/proceso/Peliculas"
         NOTEBOOKS=("NB_Carga_Catalogo_Peliculas" "NB_Carga_Detalle_Peliculas" "NB_Carga_Mas_Info_Peliculas" "NB_Carga_Ruta_Poster_Peliculas" "NB_Transformacion_Director_Pelicula" "NB_Transformacion_Genero_Pelicula" "NB_Transformacion_Idioma_Pelicula"
-        "NB_Transformacion_Peliculas")  # Agrega más según necesitesas
+        "NB_Transformacion_Peliculas" "NB_Dimension_Director_Pelicula_T2" "NB_Dimension_Genero_Pelicula_T0" "NB_Dimension_Idioma_Pelicula_T0" "NB_Dimension_Pelicula_T1" "NB_Fct_Table_Pelicula" "Preparacion_Ambiente")  # Agrega más según necesitesas
         mkdir -p notebooks_to_deploy
         for nb in "${NOTEBOOKS[@]}"; do
           echo "Exportando $nb en modo raw..."
@@ -33,7 +33,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/py/scripts/main"
+        DEST_BASE="/pry_smart_data/dwh_peliculas_jptq/scripts/main"
         for file in notebooks_to_deploy/*.py; do
           name=$(basename "$file" .py)
           dest_path="$DEST_BASE/$name"
@@ -60,7 +60,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        WORKFLOW_NAME="WF_ADB"
+        WORKFLOW_NAME="WF_DWH_PELICULAS_JPTQ"
         
         echo "Verificando si existe el workflow: $WORKFLOW_NAME"
         
@@ -88,8 +88,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        # Cambiar Nombre de Cluster
-        CLUSTER_NAME="cluster_SD"
+        CLUSTER_NAME="Cluster_JPTQ"
         
         echo "Buscando cluster existente: $CLUSTER_NAME"
         
@@ -113,49 +112,351 @@ jobs:
           exit 1
         fi
     
-    - name: Create Databricks Workflow WF_ADB
+    - name: Create Databricks Workflow WF_DWH_PELICULAS_JPTQ
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
         DEST_BASE="/py/scripts/main"
         CLUSTER_ID="${{ env.CLUSTER_ID }}"
         
-        echo "Creando workflow: WF_ADB con cluster existente ID: $CLUSTER_ID"
+        echo "Creando workflow: WF_DWH_PELICULAS_JPTQ con cluster existente ID: $CLUSTER_ID"
         
         # Crear el JSON del workflow usando cluster existente
         cat > workflow_config.json << EOF
         {
-          "name": "WF_ADB",
+          "name": "WF_DWH_PELICULAS_JPTQ",
           "format": "MULTI_TASK",
           "tasks": [
             {
-              "task_key": "tarea1_notebook1",
-              "description": "Ejecuta notebook ntbk_1",
+              "task_key": "Preparacion_Ambiente",
+              "description": "Ejecuta notebook Preparacion_Ambiente",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/ntbk_1",
-                "source": "WORKSPACE"
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/Preparacion_Ambiente",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "nameDatalake": "adlsjptq0126"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2
             },
             {
-              "task_key": "tarea2_notebook2",
-              "description": "Ejecuta notebook ntbk_2",
+              "task_key": "NB_Carga_Catalogo_Peliculas",
+              "description": "Ejecuta notebook NB_Carga_Catalogo_Peliculas",
               "notebook_task": {
-                "notebook_path": "/py/scripts/main/ntbk_2",
-                "source": "WORKSPACE"
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Carga_Catalogo_Peliculas",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw-jptq",
+                  "catalogo": "catalog_jptq",
+                  "esquema": "bronze_jptq",
+				  "datalake": "adlsjptq0126",
+				  "file": "Peliculas",
+				  "name_file": "Movies.csv",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
               },
               "existing_cluster_id": "$CLUSTER_ID",
               "timeout_seconds": 3600,
               "max_retries": 2,
               "depends_on": [
                 {
-                  "task_key": "tarea1_notebook1"
+                  "task_key": "Preparacion_Ambiente"
                 }
               ]
-            }
-          ],
+            },
+            {
+              "task_key": "NB_Carga_Mas_Info_Peliculas",
+              "description": "Ejecuta notebook NB_Carga_Mas_Info_Peliculas",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Carga_Mas_Info_Peliculas",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw-jptq",
+                  "catalogo": "catalog_jptq",
+                  "esquema": "bronze_jptq",
+				  "datalake": "adlsjptq0126",
+				  "file": "Peliculas",
+				  "name_file": "MoreInfo.csv",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Carga_Catalogo_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Carga_Detalle_Peliculas",
+              "description": "Ejecuta notebook NB_Carga_Detalle_Peliculas",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Carga_Detalle_Peliculas",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw-jptq",
+                  "catalogo": "catalog_jptq",
+                  "esquema": "bronze_jptq",
+				  "datalake": "adlsjptq0126",
+				  "file": "Peliculas",
+				  "name_file": "FilmDetails.csv",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "Preparacion_Ambiente"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Carga_Ruta_Poster_Peliculas",
+              "description": "Ejecuta notebook NB_Carga_Ruta_Poster_Peliculas",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Carga_Ruta_Poster_Peliculas",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "container": "raw-jptq",
+                  "catalogo": "catalog_jptq",
+                  "esquema": "bronze_jptq",
+				  "datalake": "adlsjptq0126",
+				  "file": "Peliculas",
+				  "name_file": "PosterPath.csv",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Carga_Detalle_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Transformacion_Peliculas",
+              "description": "Ejecuta notebook NB_Transformacion_Peliculas",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Transformacion_Peliculas",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_source": "bronze_jptq",
+				  "esquema_stage": "silver_jptq",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Carga_Ruta_Poster_Peliculas",
+				  "task_key": "NB_Carga_Mas_Info_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Transformacion_Director_Pelicula",
+              "description": "Ejecuta notebook NB_Transformacion_Director_Pelicula",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Transformacion_Director_Pelicula",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_source": "bronze_jptq",
+				  "esquema_stage": "silver_jptq",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Transformacion_Genero_Pelicula",
+              "description": "Ejecuta notebook NB_Transformacion_Genero_Pelicula",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Transformacion_Genero_Pelicula",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_source": "bronze_jptq",
+				  "esquema_stage": "silver_jptq",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Transformacion_Idioma_Pelicula",
+              "description": "Ejecuta notebook NB_Transformacion_Idioma_Pelicula",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Transformacion_Idioma_Pelicula",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_source": "bronze_jptq",
+				  "esquema_stage": "silver_jptq",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Peliculas"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Dimension_Director_Pelicula_T2",
+              "description": "Ejecuta notebook NB_Dimension_Director_Pelicula_T2",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Dimension_Director_Pelicula_T2",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_stage": "silver_jptq",
+				  "esquema_target": "golden_jptq",
+				  "tabla": "TBL_DIM_DIRECTOR_PELICULA_T2",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Director_Pelicula",
+				  "task_key": "NB_Transformacion_Genero_Pelicula",
+				  "task_key": "NB_Transformacion_Idioma_Pelicula"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Dimension_Genero_Pelicula_T0",
+              "description": "Ejecuta notebook NB_Dimension_Genero_Pelicula_T0",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Dimension_Genero_Pelicula_T0",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_stage": "silver_jptq",
+				  "esquema_target": "golden_jptq",
+				  "tabla": "TBL_DIM_GENERO_PELICULA_T0",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Director_Pelicula",
+				  "task_key": "NB_Transformacion_Genero_Pelicula",
+				  "task_key": "NB_Transformacion_Idioma_Pelicula"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Dimension_Idioma_Pelicula_T0",
+              "description": "Ejecuta notebook NB_Dimension_Idioma_Pelicula_T0",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Dimension_Idioma_Pelicula_T0",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_stage": "silver_jptq",
+				  "esquema_target": "golden_jptq",
+				  "tabla": "TBL_DIM_IDIOMA_PELICULA_T0",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Director_Pelicula",
+				  "task_key": "NB_Transformacion_Genero_Pelicula",
+				  "task_key": "NB_Transformacion_Idioma_Pelicula"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Dimension_Pelicula_T1",
+              "description": "Ejecuta notebook NB_Dimension_Pelicula_T1",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Dimension_Pelicula_T1",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_stage": "silver_jptq",
+				  "esquema_target": "golden_jptq",
+				  "tabla": "TBL_DIM_PELICULA_T1",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Transformacion_Director_Pelicula",
+				  "task_key": "NB_Transformacion_Genero_Pelicula",
+				  "task_key": "NB_Transformacion_Idioma_Pelicula"
+                }
+              ]
+            },
+			{
+              "task_key": "NB_Fct_Table_Pelicula",
+              "description": "Ejecuta notebook NB_Fct_Table_Pelicula",
+              "notebook_task": {
+                "notebook_path": "/pry_smart_data/dwh_peliculas_jptq/scripts/main/NB_Fct_Table_Pelicula",
+                "source": "WORKSPACE",
+                "base_parameters": {
+                  "catalogo": "catalog_jptq",
+                  "esquema_source": "bronze_jptq",
+				  "esquema_target": "golden_jptq",
+				  "tabla": "TBL_FCT_PELICULA",
+				  "storageLocation": "abfss://unity-catalog-jptq@adlsjptq0126.dfs.core.windows.net"
+                }
+              },
+			  "existing_cluster_id": "$CLUSTER_ID",
+              "timeout_seconds": 3600,
+              "max_retries": 2,
+              "depends_on": [
+                {
+                  "task_key": "NB_Dimension_Pelicula_T1",
+				  "task_key": "NB_Dimension_Idioma_Pelicula_T0",
+				  "task_key": "NB_Dimension_Genero_Pelicula_T0",
+				  "task_key": "NB_Dimension_Director_Pelicula_T2"
+                }
+              ]
+            }          
+		  ],
           "schedule": {
             "quartz_cron_expression": "0 0 8 * * ?",
             "timezone_id": "America/Lima",
@@ -173,7 +474,7 @@ jobs:
             "environment": "production",
             "created_by": "github_actions",
             "project": "automated_deployment",
-            "cluster_used": "cluster_SD"
+            "cluster_used": "Cluster_JPTQ"
           }
         }
         EOF
@@ -191,7 +492,7 @@ jobs:
         job_id=$(echo "$create_response" | jq -r '.job_id')
         
         if [ "$job_id" != "" ] && [ "$job_id" != "null" ]; then
-          echo "✅ Workflow 'WF_ADB' creado exitosamente con ID: $job_id"
+          echo "✅ Workflow 'WF_DWH_PELICULAS_JPTQ' creado exitosamente con ID: $job_id"
           
           # Obtener detalles del workflow creado
           workflow_details=$(curl -s -X GET \
@@ -210,7 +511,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        WORKFLOW_NAME="WF_ADB"
+        WORKFLOW_NAME="WF_DWH_PELICULAS_JPTQ"
         
         echo "🔍 Validando la configuración del workflow creado..."
         
@@ -245,6 +546,127 @@ jobs:
           exit 1
         fi
     
+    - name: Execute Workflow WF_DWH_PELICULAS_JPTQ
+      run: |
+        DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
+        DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
+        WORKFLOW_NAME="WF_DWH_PELICULAS_JPTQ"
+        
+        echo "🚀 Ejecutando workflow: $WORKFLOW_NAME"
+        
+        # Obtener job_id del workflow
+        workflows_list=$(curl -s -X GET \
+          -H "Authorization: Bearer $DEST_TOKEN" \
+          "$DEST_HOST/api/2.1/jobs/list")
+        
+        job_id=$(echo "$workflows_list" | jq -r --arg name "$WORKFLOW_NAME" '.jobs[]? | select(.settings.name == $name) | .job_id')
+        
+        if [ "$job_id" != "" ] && [ "$job_id" != "null" ]; then
+          echo "✅ Workflow encontrado con ID: $job_id"
+          
+          # Ejecutar el workflow
+          run_response=$(curl -s -X POST \
+            -H "Authorization: Bearer $DEST_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"job_id\": $job_id}" \
+            "$DEST_HOST/api/2.1/jobs/run-now")
+          
+          run_id=$(echo "$run_response" | jq -r '.run_id')
+          
+          if [ "$run_id" != "" ] && [ "$run_id" != "null" ]; then
+            echo "🎯 Workflow ejecutado exitosamente!"
+            echo "Run ID: $run_id"
+            echo "WORKFLOW_RUN_ID=$run_id" >> $GITHUB_ENV
+            echo "WORKFLOW_JOB_ID=$job_id" >> $GITHUB_ENV
+            
+            # Mostrar URL del workflow en ejecución
+            echo "🔗 URL del workflow: $DEST_HOST/jobs/$job_id/runs/$run_id"
+            
+          else
+            echo "❌ Error al ejecutar el workflow"
+            echo "Response: $run_response"
+            exit 1
+          fi
+        else
+          echo "❌ No se pudo encontrar el workflow para ejecutar"
+          exit 1
+        fi
+    
+    - name: Monitor Workflow Execution
+      run: |
+        DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
+        DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
+        RUN_ID="${{ env.WORKFLOW_RUN_ID }}"
+        JOB_ID="${{ env.WORKFLOW_JOB_ID }}"
+        
+        echo "📊 Monitoreando ejecución del workflow..."
+        echo "Job ID: $JOB_ID"
+        echo "Run ID: $RUN_ID"
+        
+        # Monitorear por máximo 10 minutos (600 segundos)
+        max_wait_time=600
+        wait_time=0
+        check_interval=30
+        
+        while [ $wait_time -lt $max_wait_time ]; do
+          # Obtener estado actual
+          run_status=$(curl -s -X GET \
+            -H "Authorization: Bearer $DEST_TOKEN" \
+            "$DEST_HOST/api/2.1/jobs/runs/get?run_id=$RUN_ID")
+          
+          state=$(echo "$run_status" | jq -r '.state.life_cycle_state')
+          result_state=$(echo "$run_status" | jq -r '.state.result_state // "RUNNING"')
+          
+          echo "⏱️  Estado actual: $state ($result_state) - Tiempo transcurrido: ${wait_time}s"
+          
+          # Mostrar progreso de las tareas
+          echo "$run_status" | jq -r '.tasks[]? | "  📋 " + .task_key + ": " + .state.life_cycle_state + " (" + (.state.result_state // "RUNNING") + ")"'
+          
+          case "$state" in
+            "TERMINATED")
+              if [ "$result_state" = "SUCCESS" ]; then
+                echo "🎉 ¡Workflow completado exitosamente!"
+                
+                # Mostrar resumen final
+                echo ""
+                echo "📈 Resumen de ejecución:"
+                echo "$run_status" | jq -r '.tasks[]? | "✅ " + .task_key + " → " + (.state.result_state // "SUCCESS")'
+                
+                # Obtener duración
+                start_time=$(echo "$run_status" | jq -r '.start_time')
+                end_time=$(echo "$run_status" | jq -r '.end_time')
+                if [ "$start_time" != "null" ] && [ "$end_time" != "null" ]; then
+                  duration=$((($end_time - $start_time) / 1000))
+                  echo "⏰ Duración total: ${duration} segundos"
+                fi
+                
+                exit 0
+              else
+                echo "❌ Workflow terminó con errores: $result_state"
+                echo "📋 Detalles de las tareas:"
+                echo "$run_status" | jq -r '.tasks[]? | "❌ " + .task_key + ": " + (.state.result_state // "UNKNOWN")'
+                exit 1
+              fi
+              ;;
+            "INTERNAL_ERROR"|"SKIPPED")
+              echo "❌ Workflow falló con estado: $state"
+              exit 1
+              ;;
+            *)
+              # Estados: PENDING, RUNNING, TERMINATING
+              echo "⏳ Workflow aún ejecutándose..."
+              ;;
+          esac
+          
+          sleep $check_interval
+          wait_time=$((wait_time + check_interval))
+        done
+        
+        echo "⚠️  Timeout: El workflow aún se está ejecutando después de $max_wait_time segundos"
+        echo "🔗 Verifica el estado en: $DEST_HOST/jobs/$JOB_ID/runs/$RUN_ID"
+        echo "ℹ️  El workflow seguirá ejecutándose en Databricks"
+        exit 0
+    
     - name: Clean up
       run: |
         rm -rf notebooks_to_deploy
@@ -252,14 +674,15 @@ jobs:
     
     - name: Done
       run: |
-        echo "🎉 ¡Despliegue completado exitosamente!"
+        echo "🎉 ¡Despliegue y ejecución completados exitosamente!"
         echo ""
-        echo "Resumen:"
-        echo "Notebooks desplegados: ntbk_1, ntbk_2"
-        echo "Workflow creado: WF_ADB"
-        echo "Tareas configuradas:"
+        echo "📊 Resumen:"
+        echo "✅ Notebooks desplegados: ntbk_1, ntbk_2"
+        echo "✅ Workflow creado: WF_ADB"
+        echo "✅ Tareas configuradas:"
         echo "   - tarea1_notebook1 (ntbk_1)"
         echo "   - tarea2_notebook2 (ntbk_2)"
-        echo "Cluster existente: cluster_SD configurado"
+        echo "✅ Cluster existente: cluster_SD configurado"
+        echo "🚀 Workflow ejecutado automáticamente"
         echo ""
-        echo "🔗 Accede a tu workspace de Databricks para ver el workflow en la sección 'Workflows'"
+        echo "🔗 Accede a tu workspace de Databricks para ver los resultados detallados"
