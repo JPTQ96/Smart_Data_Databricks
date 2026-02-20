@@ -116,7 +116,7 @@ jobs:
       run: |
         DEST_HOST=${{ secrets.DATABRICKS_DEST_HOST }}
         DEST_TOKEN=${{ secrets.DATABRICKS_DEST_TOKEN }}
-        DEST_BASE="/py/scripts/main"
+        DEST_BASE="/pry_smart_data/dwh_peliculas_jptq/scripts/main"
         CLUSTER_ID="${{ env.CLUSTER_ID }}"
         
         echo "Creando workflow: WF_DWH_PELICULAS_JPTQ con cluster existente ID: $CLUSTER_ID"
