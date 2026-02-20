@@ -10,7 +10,7 @@
 [![Databricks](https://img.shields.io/badge/Databricks-FF3621?style=for-the-badge&logo=databricks&logoColor=white)](https://databricks.com/)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
-*Pipeline automatizado de datos para análisis de ventas y garantias de Apple Stores con arquitectura de tres capas y despliegue continuo*
+*Pipeline automatizado de datos para análisis de Peliculas en el tiempo con sus Costos y Ganancias con arquitectura medallion y despliegue continuo*
 
 </div>
 
@@ -18,7 +18,7 @@
 
 ## 🎯 Descripción
 
-Pipeline ETL enterprise-grade que transforma datos crudos de ventas y garantias de tiendas Apple de diferentes años y paises, implementando la **Arquitectura Medallion** (Bronze-Silver-Gold) en Azure Databricks con **CI/CD completo** y **Delta Lake** para garantizar consistencia ACID.
+Pipeline ETL enterprise-grade que transforma datos crudos de la peliculas que se han hecho en el timepo teniendo en cuenta votaciones, costos y ganancias obtenidas en su fecha de lanzamiento, implementando la **Arquitectura Medallion** (Bronze-Silver-Gold) en Azure Databricks con **CI/CD completo** y **Delta Lake** para garantizar consistencia ACID.
 
 ### ✨ Características Principales
 
@@ -39,17 +39,17 @@ Pipeline ETL enterprise-grade que transforma datos crudos de ventas y garantias 
 ```
 📄 CSV (Raw Data)
     ↓
-🥉 Bronze Layer (Ingesta sin transformación)
+🥉 Bronze Zone (Ingesta sin transformación)
     ↓
-🥈 Silver Layer (Limpieza + Modelo Dimensional)
+🥈 Silver Zone (Limpieza + Transformacion)
     ↓
-🥇 Gold Layer (Agregaciones de Negocio)
+🥇 Gold Zone (Modelo Dimensional)
     ↓
 📊 Databricks Dashboards (Visualización)
 ```
 
 ![Arquitectura Trabajada](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/Arq_DWH_Movies.png)
-
+![Modelo Dimensional]()
 
 ### 📦 Capas del Pipeline
 
@@ -58,36 +58,32 @@ Pipeline ETL enterprise-grade que transforma datos crudos de ventas y garantias 
 <td width="33%" valign="top">
 
 #### 🥉 Bronze Layer
-**Propósito**: Zona de aterrizaje
+**Propósito**: Toma de Informacion Fuente de los Planos .csv
 
 **Tablas**: 
-- `category` 
-- `products` 
-- `warranty`
-- `sales` 
-- `stores`
+- `TBL_DETALLE_PELICULAS` 
+- `TBL_MAS_INFO_PELICULAS` 
+- `TBL_PELICULAS`
+- `TBL_POSTER_PELICULAS`
 
 **Características**:
 - ✅ Datos tal como vienen de origen
 - ✅ Timestamp de ingesta
-- ✅ Preservación histórica
 - ✅ Sin validaciones
 
 </td>
 <td width="33%" valign="top">
 
 #### 🥈 Silver Layer
-**Propósito**: Modelo dimensional
+**Propósito**: Transformacion de Datos
 
 **Tablas**:
-- `category_sales`
-- `product_sales`
-- `store_sales`
-- `store_warranty_status`
-- `warranty_products`
+- `TBL_TMP_DIRECTOR_PELICULA`
+- `TBL_TMP_GENERO_PELICULA`
+- `TBL_TMP_IDIOMA_PELICULA`
+- `TBL_TMP_PELICULA`
 
 **Características**:
-- ✅ Star Schema
 - ✅ Datos normalizados
 - ✅ Validaciones completas
 
@@ -95,17 +91,17 @@ Pipeline ETL enterprise-grade que transforma datos crudos de ventas y garantias 
 <td width="33%" valign="top">
 
 #### 🥇 Gold Layer
-**Propósito**: Analytics-ready
+**Propósito**: Modelo Dimensional
 
 **Tablas**:
-- kpi_category_sales        : Monto total en ventas agrupado por categoría y año
-- kpi_product_sales         : Monto total en ventas agrupado por producto y año
-- kpi_store_sales           : Monto total en ventas agrupado por tienda y año
-- kpi_store_warranty_status : Total de reclamos por tienda en los diferentes estatus pivot
-- kpi_product_warranty      : Productos con mayor reclamos post venta (garantía)
+- TBL_DIM_DIRECTOR_PELICULA_T2 : Dimension Directores de Peliculas.
+- TBL_DIM_GENERO_PELICULA_T0   : Dimension Genero de Peliculas.
+- TBL_DIM_IDIOMA_PELICULA_T0   : Dimension Idiomas de Peliculas.
+- TBL_DIM_PELICULA_T1          : Dimension Peliculas.
+- TBL_FCT_PELICULA             : Tabla de Hecho con las medidas de analisis de las Peliculas.
 
 **Características**:
-- ✅ Pre-agregados
+- ✅ Star Schema
 - ✅ Optimizado para BI
 - ✅ Performance máximo
 - ✅ Actualizaciones automáticas
@@ -119,26 +115,44 @@ Pipeline ETL enterprise-grade que transforma datos crudos de ventas y garantias 
 ## 📁 Estructura del Proyecto
 
 ```
-etl-apple/
+Smart_Data_Databricks/
 │
 ├── 📂 .github/
 │   └── 📂 workflows/
-│       └── 📄 deploy-certification.yml    # Pipeline CI/CD deploy a certification workspace databricks
-├── 📂 process/
-│   ├── 🐍 ingest_catalogs.py           # Bronze layer
-│   ├── 🐍 ingest_sales.py              # Bronze Layer
-│   ├── 🐍 ingest_warranty.py           # Bronze Layer
-│   ├── 🐍 transform_sales.py           # Silver Layer
-│   ├── 🐍 transform_warranty.py        # Silver Layer
-│   └── 🐍 load_sales.py                # Gold Layer
-│   └── 🐍 load_warranty.py             # Gold Layer
-├── 📂 scrips/
-|   ├── 🐍 Enviroment preparation.py    # Create Schema, Tables, External location
-├── 📂 security/
-|   ├── 🐍 Permissions.py               # Sql Grant
+│       └── 📄 deploy-notebook.yml    # Pipeline CI/CD deploy a certification workspace databricks
+├── 📂 PrepAmb/
+│   ├── 🐍 Preparacion_Ambiente.ipynb   # Preparacion Ambiente
+├── 📂 certificaciones/
+│   ├── 📄 Enlaces_Certificaciones.txt  # Enlaces con las Certificaciones Obtenidas
+├── 📂 datasets/
+│   ├── 🔢 FilmDetails.csv    # Detalle Peliculas
+|   ├── 🔢 MoreInfo.csv       # Mas Info Peliculas
+|   ├── 🔢 Movies.csv         # Peliculas
+|   ├── 🔢 PosterPath.csv     # Ruta Posters
+│   ├── 📄 info_datasets.txt  # Informacion Detallada de Cada Fuente 
+├── 📂 proceso/
+│   └── 📂 Peliculas/
+│   ├── 🐍 NB_Carga_Catalogo_Peliculas.ipynb           # Bronze Zone
+│   ├── 🐍 NB_Carga_Detalle_Peliculas.ipynb            # Bronze Zone
+│   ├── 🐍 NB_Carga_Mas_Info_Peliculas.ipynb           # Bronze Zone
+│   ├── 🐍 NB_Carga_Ruta_Poster_Peliculas.ipynb        # Bronze Zone
+│   ├── 🐍 NB_Transformacion_Director_Pelicula.ipynb   # Silver Zone
+│   ├── 🐍 NB_Transformacion_Genero_Pelicula.ipynb     # Silver Zone
+│   ├── 🐍 NB_Transformacion_Idioma_Pelicula.ipynb     # Silver Zone
+│   ├── 🐍 NB_Transformacion_Peliculas.ipynb           # Silver Zone
+│   └── 🐍 NB_Dimension_Director_Pelicula_T2.ipynb     # Gold Zone
+│   └── 🐍 NB_Dimension_Genero_Pelicula_T0.ipynb       # Gold Zone
+│   └── 🐍 NB_Dimension_Idioma_Pelicula_T0.ipynb       # Gold Zone
+│   └── 🐍 NB_Dimension_Pelicula_T1.ipynb              # Gold Zone
+│   └── 🐍 NB_Fct_Table_Pelicula.ipynb                 # Gold Zone
+│   └── 🐍 Preparacion_Ambiente.ipynb                  # Preparacion Ambiente
 ├── 📂 reversion/
-|   ├── 🐍 revoke.py               # Revoke permissions
-├── 📂 dashboards/                 # Databricks Dashboards 
+|   ├── 🐍 Reversion_Proceso.ipynb    # Reversion del Proceso
+├── 📂 scripts/
+|   ├── 🐍     # Creacion Objetos
+├── 📂 seguridad/
+|   ├── 🐍 Grant's to Consultor.ipynb    # Permisos Usuario Externo
+├── 📂 dashboards/                       # Databricks Dashboards 
 └── 📄 README.md
 ```
 
@@ -155,7 +169,7 @@ etl-apple/
 | ![PySpark](https://img.shields.io/badge/PySpark-E25A1C?style=flat-square&logo=apache-spark&logoColor=white) | Framework de transformación de datos |
 | ![ADLS](https://img.shields.io/badge/ADLS_Gen2-0078D4?style=flat-square&logo=microsoft-azure&logoColor=white) | Data Lake para almacenamiento persistente |
 | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) | Automatización CI/CD |
-| ![Databricks Dashboards](https://img.shields.io/badge/Databricks Dashboards-F2C81?style=for-the-badge&logo=databricks&logoColor=black) |  Visualización |
+| ![Databricks](https://img.shields.io/badge/Azure_Databricks-FF3621?style=flat-square&logo=databricks&logoColor=white) |  Visualización |
 
 </div>
 
@@ -165,10 +179,10 @@ etl-apple/
 
 - ☁️ Cuenta de Azure con acceso a Databricks
 - 💻 Workspace de Databricks configurado
-- 🖥️ Cluster activo (nombre: `Cluster1`)
+- 🖥️ Cluster activo (nombre: `Cluster_JPTQ`)
 - 🐙 Cuenta de GitHub con permisos de administrador
 - 📦 Azure Data Lake Storage Gen2 configurado
-- 📊 Power BI Desktop (opcional para visualización)
+- 📊 Databricks o Power BI Desktop (opcional para visualización)
 
 ---
 
@@ -177,8 +191,8 @@ etl-apple/
 ### 1️⃣ Clonar el Repositorio
 
 ```bash
-git clone https://github.com/guaru/project-databricks.git
-cd project-databricks
+git clone https://github.com/JPTQ96/Smart_Data_Databricks.git
+cd Smart_Data_Databricks
 ```
 
 ### 2️⃣ Configurar Databricks Token
@@ -187,7 +201,7 @@ cd project-databricks
 2. **User Settings** → **Developer** → **Access Tokens**
 3. Click en **Generate New Token**
 4. Configurar:
-   - **Comment**: `GitHub CI/CD`
+   - **Comment**: `GITHUB`
    - **Lifetime**: `90 days`
 5. ⚠️ Copiar y guardar el token
 
@@ -197,13 +211,15 @@ En tu repositorio: **Settings** → **Secrets and variables** → **Actions**
 
 | Secret Name | Valor Ejemplo |
 |------------|---------------|
-| `DATABRICKS_HOST` | `https://adb-xxxxx.azuredatabricks.net` |
-| `DATABRICKS_TOKEN` | `dapi_xxxxxxxxxxxxxxxx` |
+| `DATABRICKS_ORIGIN_HOST` | `https://adb-xxxxx.azuredatabricks.net` |
+| `DATABRICKS_ORIGIN_TOKEN` | `dapi_xxxxxxxxxxxxxxxx` |
+| `DATABRICKS_DEST_HOST` | `https://adb-xxxxx.azuredatabricks.net` |
+| `DATABRICKS_DEST_TOKEN` | `dapi_xxxxxxxxxxxxxxxx` |
 
 ### 4️⃣ Verificar Storage Configuration
 
 ```python
-storage_path = "abfss://raw@adlsprojectsmartdata.dfs.core.windows.net"
+storage_path = "abfss://raw-jptq@adlsjptq0126.dfs.core.windows.net"
 ```
 
 <div align="center">
@@ -225,22 +241,22 @@ git push origin master
 ```
 
 **GitHub Actions ejecutará**:
-- 📤 Deploy de notebooks a `/Production/ETL-APPLE`
-- 🔧 Creación del workflow `WF_PROD_ETL_APPLE_SALES`
+- 📤 Deploy de notebooks a `/pry_smart_data/dwh_peliculas_jptq/scripts/main`
+- 🔧 Creación del workflow `WF_DWH_PELICULAS_JPTQ`
 - ▶️ Ejecución completa:  Bronze → Silver → Gold
 - 📧 Notificaciones de resultados
 
 ### 🖱️ Despliegue Manual desde GitHub
 
 1. Ir al tab **Actions** en GitHub
-2. Seleccionar **Deploy ETL Apple Sales And Warranty**
+2. Seleccionar **Deploy**
 3. Click en **Run workflow**
 4. Seleccionar rama `main`
 5. Click en **Run workflow**
 
 ### 🔧 Ejecución Local en Databricks
 
-Navegar a `/Production/ETL-APPLE` y ejecutar en orden:
+Navegar a `/pry_smart_data/dwh_peliculas_jptq/scripts/main` y ejecutar en orden:
 
 ```
 - Enviroment preparation.py         → Crear esquema
@@ -271,7 +287,9 @@ Workflow: Deploy ETL Apple Sales And Warranty
 ```
 
 ### 🔄  Workflow Databricks
-![Texto descriptivo](CICD_ETL_APPLE.png)
+![Workflow](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas.png)
+![Workflow_Ejecucion](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion.png)
+![Workflow_Ejecucion_2](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion_2.png)
 ```
 
 
@@ -279,8 +297,8 @@ Workflow: Deploy ETL Apple Sales And Warranty
 ⏱️ Timeout total: 4 horas
  🔒 Max concurrent runs: 1
 ⏰ Notificaciones: 
-      success: isc.ventura@gmail.com
-      failed:  isc.ventura@gmail.com
+      success: juanpis602@hotmail.com
+      failed:  juanpis602@hotmail.com
 ```
 
 ---
@@ -294,7 +312,7 @@ https://github.com/guaru/project-databricks/tree/dev/dashboards
 
 **Workflows**:
 - Ir a **Workflows** en el menú lateral
-- Buscar `ETL_PROD_APPLE_SALES`
+- Buscar `WF_DWH_PELICULAS_JPTQ`
 - Ver historial de ejecuciones
 
 **Logs por Tarea**:
