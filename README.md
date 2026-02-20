@@ -259,14 +259,20 @@ git push origin master
 Navegar a `/pry_smart_data/dwh_peliculas_jptq/scripts/main` y ejecutar en orden:
 
 ```
-- Enviroment preparation.py         → Crear esquema
-- ingest_catalogs.py                → Bronze Layer
-- ingest_sales.py                   → Bronze Layer
-- ingest_warranty.py                → Bronze Layer
-- transform_sales.py                → Silver Layer
-- transform_warranty.py             → Silver Layer
-- load_sales.py                     → Gold Layer
-- load_warranty.py                  → Gold Layer
+- Preparacion_Ambiente.ipynb                  # Preparacion Ambiente
+- NB_Carga_Catalogo_Peliculas.ipynb           # Bronze Zone
+- NB_Carga_Detalle_Peliculas.ipynb            # Bronze Zone
+- NB_Carga_Mas_Info_Peliculas.ipynb           # Bronze Zone
+- NB_Carga_Ruta_Poster_Peliculas.ipynb        # Bronze Zone
+- NB_Transformacion_Director_Pelicula.ipynb   # Silver Zone
+- NB_Transformacion_Genero_Pelicula.ipynb     # Silver Zone
+- NB_Transformacion_Idioma_Pelicula.ipynb     # Silver Zone
+- NB_Transformacion_Peliculas.ipynb           # Silver Zone
+- NB_Dimension_Director_Pelicula_T2.ipynb     # Gold Zone
+- NB_Dimension_Genero_Pelicula_T0.ipynb       # Gold Zone
+- NB_Dimension_Idioma_Pelicula_T0.ipynb       # Gold Zone
+- NB_Dimension_Pelicula_T1.ipynb              # Gold Zone
+- NB_Fct_Table_Pelicula.ipynb                 # Gold Zone
 ```
 
 ---
@@ -278,7 +284,7 @@ Navegar a `/pry_smart_data/dwh_peliculas_jptq/scripts/main` y ejecutar en orden:
 
 ```yaml
 Workflow: Deploy ETL Apple Sales And Warranty
-├── Deploy notebooks → /Production/ETL-APPLE
+├── Deploy notebooks → /pry_smart_data/dwh_peliculas_jptq/scripts/main
 ├── Eliminar workflow antiguo (si existe)
 ├── Buscar cluster configurado
 ├── Crear nuevo workflow con 4 tareas
