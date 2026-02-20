@@ -101,7 +101,7 @@ Pipeline ETL enterprise-grade que transforma datos crudos de la peliculas que se
 - TBL_FCT_PELICULA             : Tabla de Hecho con las medidas de analisis de las Peliculas.
 
 **Características**:
-- ✅ Star Schema
+- ✅ Modelo Estrella
 - ✅ Optimizado para BI
 - ✅ Performance máximo
 - ✅ Actualizaciones automáticas
