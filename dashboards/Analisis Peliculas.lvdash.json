@@ -1,0 +1,1591 @@
+{
+  "datasets": [
+    {
+      "name": "aa8790f8",
+      "displayName": "DWH_MOVIES",
+      "queryLines": [
+        "SELECT \r\n",
+        "DIM_DP.COD_DIRECTOR_PELICULA,\r\n",
+        "DIM_DP.DES_DIRECTOR_PELICULA,\r\n",
+        "DIM_GP.COD_GENERO_PELICULA,\r\n",
+        "DIM_GP.DES_GENERO_PELICULA,\r\n",
+        "DIM_IP.COD_IDIOMA_PELICULA,\r\n",
+        "DIM_IP.DES_IDIOMA_PELICULA,\r\n",
+        "DIM_P.COD_PELICULA,\r\n",
+        "DIM_P.DES_PELICULA,\r\n",
+        "DIM_P.DES_DURACION_PELICULA,\r\n",
+        "DIM_P.DES_TOP_ACTORES,\r\n",
+        "DIM_P.DES_RUTA_POSTER_FRONTAL,\r\n",
+        "DIM_P.DES_RUTA_POSTER_TRASERA,\r\n",
+        "DIM_P.FEC_LANZAMIENTO,\r\n",
+        "FCT.VAL_PUNTUACION_USUARIO,\r\n",
+        "FCT.VAL_DURACION_PELICULA_HORA,\r\n",
+        "FCT.VAL_DURACION_PELICULA_MINUTOS,\r\n",
+        "FCT.VAL_NUMERO_VOTOS,\r\n",
+        "FCT.VAL_PRESUPUESTO_USD,\r\n",
+        "FCT.VAL_GANANCIAS_USD\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_director_pelicula_t2 DIM_DP\r\n",
+        "ON FCT.SK_DIM_DIRECTOR = DIM_DP.SK_DIM_DIRECTOR\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_genero_pelicula_t0 DIM_GP\r\n",
+        "ON FCT.SK_DIM_GENERO = DIM_GP.SK_DIM_GENERO\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_idioma_pelicula_t0 DIM_IP\r\n",
+        "ON FCT.SK_DIM_IDIOMA = DIM_IP.SK_DIM_IDIOMA\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA"
+      ],
+      "catalog": "catalog_jptq",
+      "schema": "golden_jptq"
+    },
+    {
+      "name": "9e249556",
+      "displayName": "Movie Insights Overview",
+      "queryLines": [
+        "--Counter widgets\r\n",
+        "SELECT \r\n",
+        "  COUNT(DISTINCT COD_PELICULA) as total_peliculas,\r\n",
+        "  ROUND(AVG(VAL_PUNTUACION_USUARIO), 2) as puntuacion_promedio,\r\n",
+        "  ROUND(SUM(VAL_PRESUPUESTO_USD)/1000000, 2) as presupuesto_total_millones,\r\n",
+        "  ROUND(SUM(VAL_GANANCIAS_USD)/1000000, 2) as ganancias_totales_millones,\r\n",
+        "  COUNT(DISTINCT DES_DIRECTOR_PELICULA) as total_directores\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_director_pelicula_t2 DIM_DP\r\n",
+        "ON FCT.SK_DIM_DIRECTOR = DIM_DP.SK_DIM_DIRECTOR\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA"
+      ]
+    },
+    {
+      "name": "d37398a5",
+      "displayName": "Top Movie Genres by Count Rating and Revenue Summary",
+      "queryLines": [
+        "--Bar chart\r\n",
+        "SELECT \r\n",
+        "  DES_GENERO_PELICULA as genero,\r\n",
+        "  COUNT(DISTINCT COD_PELICULA) as cantidad_peliculas,\r\n",
+        "  ROUND(AVG(VAL_PUNTUACION_USUARIO), 2) as puntuacion_promedio,\r\n",
+        "  ROUND(SUM(VAL_GANANCIAS_USD)/1000000, 2) as ganancias_millones\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_genero_pelicula_t0 DIM_GP\r\n",
+        "ON FCT.SK_DIM_GENERO = DIM_GP.SK_DIM_GENERO\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA\r\n",
+        "WHERE DES_GENERO_PELICULA IS NOT NULL\r\n",
+        "GROUP BY DES_GENERO_PELICULA\r\n",
+        "ORDER BY cantidad_peliculas DESC\r\n",
+        "LIMIT 15"
+      ]
+    },
+    {
+      "name": "aa040f4a",
+      "displayName": "Top Movie Directors Ranked by Ratings and Earnings",
+      "queryLines": [
+        "--Table or Bar chart\r\n",
+        "SELECT \r\n",
+        "  DES_DIRECTOR_PELICULA as director,\r\n",
+        "  COUNT(DISTINCT COD_PELICULA) as num_peliculas,\r\n",
+        "  ROUND(AVG(VAL_PUNTUACION_USUARIO), 2) as puntuacion_promedio,\r\n",
+        "  ROUND(AVG(VAL_GANANCIAS_USD)/1000000, 2) as ganancia_promedio_millones\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_director_pelicula_t2 DIM_DP\r\n",
+        "ON FCT.SK_DIM_DIRECTOR = DIM_DP.SK_DIM_DIRECTOR\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA\r\n",
+        "WHERE DES_DIRECTOR_PELICULA IS NOT NULL\r\n",
+        "GROUP BY DES_DIRECTOR_PELICULA\r\n",
+        "HAVING COUNT(DISTINCT COD_PELICULA) >= 2\r\n",
+        "ORDER BY puntuacion_promedio DESC\r\n",
+        "LIMIT 10"
+      ]
+    },
+    {
+      "name": "5cbdfd70",
+      "displayName": "Top fifty movies ranked by return on investment percentage",
+      "queryLines": [
+        "--Scatter plot\r\n",
+        "SELECT \r\n",
+        "  DES_PELICULA as pelicula,\r\n",
+        "  VAL_PRESUPUESTO_USD/1000000 as presupuesto_millones,\r\n",
+        "  VAL_GANANCIAS_USD/1000000 as ganancias_millones,\r\n",
+        "  ROUND(((VAL_GANANCIAS_USD - VAL_PRESUPUESTO_USD) / NULLIF(VAL_PRESUPUESTO_USD, 0)) * 100, 2) as roi_porcentaje,\r\n",
+        "  VAL_PUNTUACION_USUARIO as puntuacion\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA\r\n",
+        "WHERE VAL_PRESUPUESTO_USD > 0 AND VAL_GANANCIAS_USD > 0\r\n",
+        "ORDER BY roi_porcentaje DESC\r\n",
+        "LIMIT 50"
+      ]
+    },
+    {
+      "name": "0fc16abb",
+      "displayName": "Yearly Movie Counts Ratings and Revenue Summary",
+      "queryLines": [
+        "--Line chart\r\n",
+        "SELECT \r\n",
+        "  DATE_FORMAT(FEC_LANZAMIENTO,'y') as anio,\r\n",
+        "  COUNT(DISTINCT COD_PELICULA) as cantidad_peliculas,\r\n",
+        "  ROUND(AVG(VAL_PUNTUACION_USUARIO), 2) as puntuacion_promedio,\r\n",
+        "  ROUND(AVG(VAL_PRESUPUESTO_USD)/1000000, 2) as presupuesto_promedio_millones,\r\n",
+        "  ROUND(AVG(VAL_GANANCIAS_USD)/1000000, 2) as ganancia_promedio_millones\r\n",
+        "FROM catalog_jptq.golden_jptq.tbl_fct_pelicula FCT\r\n",
+        "LEFT JOIN catalog_jptq.golden_jptq.tbl_dim_pelicula_t1 DIM_P\r\n",
+        "ON FCT.SK_DIM_PELICULA = DIM_P.SK_DIM_PELICULA\r\n",
+        "WHERE FEC_LANZAMIENTO IS NOT NULL\r\n",
+        "GROUP BY DATE_FORMAT(FEC_LANZAMIENTO,'y')\r\n",
+        "ORDER BY 1"
+      ]
+    },
+    {
+      "name": "726cbbac",
+      "displayName": "Cinematic Insights and Ratings Analysis",
+      "queryLines": [
+        "SELECT\r\n",
+        "  p.`DES_PELICULA`,\r\n",
+        "  d.`DES_DIRECTOR_PELICULA`,\r\n",
+        "  g.`DES_GENERO_PELICULA`,\r\n",
+        "  i.`DES_IDIOMA_PELICULA`,\r\n",
+        "  AVG(f.`VAL_PUNTUACION_USUARIO`) AS avg_puntuacion_usuario,\r\n",
+        "  SUM(f.`VAL_NUMERO_VOTOS`) AS total_votos,\r\n",
+        "  SUM(f.`VAL_PRESUPUESTO_USD`) AS total_presupuesto_usd,\r\n",
+        "  SUM(f.`VAL_GANANCIAS_USD`) AS total_ganancias_usd\r\n",
+        "FROM\r\n",
+        "  `catalog_jptq`.`golden_jptq`.`tbl_fct_pelicula` f\r\n",
+        "    JOIN `catalog_jptq`.`golden_jptq`.`tbl_dim_pelicula_t1` p\r\n",
+        "      ON f.`SK_DIM_PELICULA` = p.`SK_DIM_PELICULA`\r\n",
+        "    JOIN `catalog_jptq`.`golden_jptq`.`tbl_dim_director_pelicula_t2` d\r\n",
+        "      ON f.`SK_DIM_DIRECTOR` = d.`SK_DIM_DIRECTOR`\r\n",
+        "    JOIN `catalog_jptq`.`golden_jptq`.`tbl_dim_genero_pelicula_t0` g\r\n",
+        "      ON f.`SK_DIM_GENERO` = g.`SK_DIM_GENERO`\r\n",
+        "    JOIN `catalog_jptq`.`golden_jptq`.`tbl_dim_idioma_pelicula_t0` i\r\n",
+        "      ON f.`SK_DIM_IDIOMA` = i.`SK_DIM_IDIOMA`\r\n",
+        "WHERE\r\n",
+        "  p.`DES_PELICULA` IS NOT NULL\r\n",
+        "  AND d.`DES_DIRECTOR_PELICULA` IS NOT NULL\r\n",
+        "  AND g.`DES_GENERO_PELICULA` IS NOT NULL\r\n",
+        "  AND i.`DES_IDIOMA_PELICULA` IS NOT NULL\r\n",
+        "GROUP BY\r\n",
+        "  p.`DES_PELICULA`,\r\n",
+        "  d.`DES_DIRECTOR_PELICULA`,\r\n",
+        "  g.`DES_GENERO_PELICULA`,\r\n",
+        "  i.`DES_IDIOMA_PELICULA`\r\n",
+        "ORDER BY\r\n",
+        "  avg_puntuacion_usuario DESC,\r\n",
+        "  total_votos DESC\r\n",
+        "LIMIT 50;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "a13a1088",
+      "displayName": "DASHBOARD_MOVIES",
+      "layout": [
+        {
+          "widget": {
+            "name": "ba3b4a9b",
+            "multilineTextboxSpec": {
+              "lines": [
+                "<p>&nbsp;</p>\n",
+                "\n",
+                "<span style=\"text-align:center;display:block\"><span style=\"font-size:36px;line-height:1.5\">Ana</span><span style=\"font-size:36px;line-height:1.5\">lisis Peliculas</span></span>"
+              ]
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 6,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "e4561dda",
+            "multilineTextboxSpec": {
+              "lines": [
+                "![](https://www.freepik.es/vector-premium/vector-diseno-logotipo-rollo-pelicula-cine_34901909.htm)![](data:image/png;base64,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)"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "e4b3c036",
+            "multilineTextboxSpec": {
+              "lines": [
+                "![](data:image/jpeg;base64,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)"
+              ]
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "cantidad-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9e249556",
+                  "fields": [
+                    {
+                      "name": "total_peliculas",
+                      "expression": "`total_peliculas`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": "Total Peliculas"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_peliculas",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "all"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "cant-directores",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9e249556",
+                  "fields": [
+                    {
+                      "name": "sum(total_directores)",
+                      "expression": "SUM(`total_directores`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Total Directores"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_directores)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "all"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "promedio-puntuacion-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9e249556",
+                  "fields": [
+                    {
+                      "name": "sum(puntuacion_promedio)",
+                      "expression": "SUM(`puntuacion_promedio`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Promedio Puntuacion Peliculas"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(puntuacion_promedio)"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "presupuesto-total-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9e249556",
+                  "fields": [
+                    {
+                      "name": "presupuesto_total_millones",
+                      "expression": "`presupuesto_total_millones`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Presupuesto Total Peliculas"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "presupuesto_total_millones",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "ganancias-totales-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9e249556",
+                  "fields": [
+                    {
+                      "name": "ganancias_totales_millones",
+                      "expression": "`ganancias_totales_millones`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Ganacias Totales Peliculas"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "ganancias_totales_millones",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "USD",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "ganancias-genero-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d37398a5",
+                  "fields": [
+                    {
+                      "name": "ganancias_millones",
+                      "expression": "`ganancias_millones`"
+                    },
+                    {
+                      "name": "genero",
+                      "expression": "`genero`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Ganacias por Genero de Peliculas"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "genero",
+                  "displayName": "Genero Pelicula",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "ganancias_millones",
+                  "displayName": "Ganancias",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false,
+                  "showTotal": true,
+                  "text": {
+                    "fieldName": "ganancias_millones",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      }
+                    },
+                    "displayName": "Ganancias"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "ganancias_millones"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "fecha-lanzamiento",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_FEC_LANZAMIENTO",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "FEC_LANZAMIENTO",
+                      "expression": "`FEC_LANZAMIENTO`"
+                    },
+                    {
+                      "name": "FEC_LANZAMIENTO_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Fecha Lanzamiento"
+              },
+              "widgetType": "filter-date-picker",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "FEC_LANZAMIENTO",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_FEC_LANZAMIENTO"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "genero-pelicula1",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_GENERO_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_GENERO_PELICULA",
+                      "expression": "`DES_GENERO_PELICULA`"
+                    },
+                    {
+                      "name": "DES_GENERO_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Genero Pelicula"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_GENERO_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_GENERO_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "idioma-pelicula",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_IDIOMA_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_IDIOMA_PELICULA",
+                      "expression": "`DES_IDIOMA_PELICULA`"
+                    },
+                    {
+                      "name": "DES_IDIOMA_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Idioma Pelicula"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_IDIOMA_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_IDIOMA_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "director-pelicula",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_DIRECTOR_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_DIRECTOR_PELICULA",
+                      "expression": "`DES_DIRECTOR_PELICULA`"
+                    },
+                    {
+                      "name": "DES_DIRECTOR_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Director Pelicula"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_DIRECTOR_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_DIRECTOR_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "puntuacion-promedio-genero-pelicula",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d37398a5",
+                  "fields": [
+                    {
+                      "name": "genero",
+                      "expression": "`genero`"
+                    },
+                    {
+                      "name": "puntuacion_promedio",
+                      "expression": "`puntuacion_promedio`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Puntuacion Promedio por Genero Pelicula"
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "genero",
+                    "displayName": "Genero Pelicula"
+                  },
+                  {
+                    "fieldName": "puntuacion_promedio",
+                    "displayName": "Prom. Puntuacion"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "cantidad-peliculas-director",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "aa040f4a",
+                  "fields": [
+                    {
+                      "name": "director",
+                      "expression": "`director`"
+                    },
+                    {
+                      "name": "num_peliculas",
+                      "expression": "`num_peliculas`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Cantidad de Peliculas por Director"
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "director",
+                    "displayName": "Director"
+                  },
+                  {
+                    "fieldName": "num_peliculas",
+                    "displayName": "Cant. Peliculas"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 15,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "ganancias-director-pelicula",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "aa040f4a",
+                  "fields": [
+                    {
+                      "name": "num_peliculas",
+                      "expression": "`num_peliculas`"
+                    },
+                    {
+                      "name": "ganancia_promedio_millones",
+                      "expression": "`ganancia_promedio_millones`"
+                    },
+                    {
+                      "name": "director",
+                      "expression": "`director`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Ganacias por Director de Pelicula"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "director",
+                  "displayName": "Nombre Director",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "ganancia_promedio_millones",
+                  "displayName": "Ganancias",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false,
+                  "showTotal": true,
+                  "text": {
+                    "fieldName": "ganancia_promedio_millones",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    },
+                    "displayName": "Ganancias"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "num_peliculas"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 19,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "roi-por-pelicula",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5cbdfd70",
+                  "fields": [
+                    {
+                      "name": "pelicula",
+                      "expression": "`pelicula`"
+                    },
+                    {
+                      "name": "roi_porcentaje",
+                      "expression": "`roi_porcentaje`"
+                    },
+                    {
+                      "name": "ganancias_millones",
+                      "expression": "`ganancias_millones`"
+                    },
+                    {
+                      "name": "presupuesto_millones",
+                      "expression": "`presupuesto_millones`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "ROI por Pelicula"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "pelicula",
+                  "displayName": "Nombre Pelicula",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "roi_porcentaje",
+                      "displayName": "Porcentaje Retorno (ROI)"
+                    },
+                    {
+                      "fieldName": "ganancias_millones",
+                      "displayName": "Ganancia Pelicula"
+                    },
+                    {
+                      "fieldName": "presupuesto_millones",
+                      "displayName": "Presupuesto Pelicula"
+                    }
+                  ],
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 45
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 25,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "presupuesto-ganancias-anio-produccion-peliculas",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "0fc16abb",
+                  "fields": [
+                    {
+                      "name": "anio",
+                      "expression": "`anio`"
+                    },
+                    {
+                      "name": "ganancia_promedio_millones",
+                      "expression": "`ganancia_promedio_millones`"
+                    },
+                    {
+                      "name": "presupuesto_promedio_millones",
+                      "expression": "`presupuesto_promedio_millones`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Presupuesto VS Ganacias por Año Produccion Peliculas"
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "anio",
+                  "displayName": "Año Pelicula",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "ganancia_promedio_millones",
+                      "displayName": "Ganacias Peliculas"
+                    },
+                    {
+                      "fieldName": "presupuesto_promedio_millones",
+                      "displayName": "Presupuesto Peliculas"
+                    }
+                  ],
+                  "axis": {
+                    "title": "Dolares"
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "display": {
+                    "type": "y-min-and-max"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 31,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "54eebade",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "726cbbac",
+                  "fields": [
+                    {
+                      "name": "DES_PELICULA",
+                      "expression": "`DES_PELICULA`"
+                    },
+                    {
+                      "name": "total_ganancias_usd",
+                      "expression": "`total_ganancias_usd`"
+                    },
+                    {
+                      "name": "total_presupuesto_usd",
+                      "expression": "`total_presupuesto_usd`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ],
+                "layout": "percent-stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "DES_PELICULA",
+                  "displayName": "Pelicula",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_ganancias_usd",
+                        "displayName": "Ganacias"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    },
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    },
+                    "axis": {
+                      "title": "Ganancias"
+                    }
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_presupuesto_usd",
+                        "displayName": "Presupuesto"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative",
+                      "reverse": false
+                    },
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    },
+                    "axis": {
+                      "title": "Presupuesto"
+                    }
+                  }
+                },
+                "label": {
+                  "show": true,
+                  "display": {
+                    "type": "y-min-and-max"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 37,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "c3a6c03a",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "director-pelicula",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_DIRECTOR_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_DIRECTOR_PELICULA",
+                      "expression": "`DES_DIRECTOR_PELICULA`"
+                    },
+                    {
+                      "name": "DES_DIRECTOR_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Director Pelicula"
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_DIRECTOR_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_DIRECTOR_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "fecha-lanzamiento",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_FEC_LANZAMIENTO",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "FEC_LANZAMIENTO",
+                      "expression": "`FEC_LANZAMIENTO`"
+                    },
+                    {
+                      "name": "FEC_LANZAMIENTO_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Fecha Lanzamiento"
+              },
+              "widgetType": "filter-date-picker",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "FEC_LANZAMIENTO",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_FEC_LANZAMIENTO"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "genero-pelicula",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_GENERO_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_GENERO_PELICULA",
+                      "expression": "`DES_GENERO_PELICULA`"
+                    },
+                    {
+                      "name": "DES_GENERO_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Genero Pelicula"
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_GENERO_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_GENERO_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "idioma-pelicula",
+            "queries": [
+              {
+                "name": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_IDIOMA_PELICULA",
+                "query": {
+                  "datasetName": "aa8790f8",
+                  "fields": [
+                    {
+                      "name": "DES_IDIOMA_PELICULA",
+                      "expression": "`DES_IDIOMA_PELICULA`"
+                    },
+                    {
+                      "name": "DES_IDIOMA_PELICULA_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Idioma Pelicula"
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "DES_IDIOMA_PELICULA",
+                    "queryName": "dashboards/01f10f2ece80154f9a1143bc011b9dad/datasets/01f10f2eeb04192a91776f9ae1ea2bc8_DES_IDIOMA_PELICULA"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 1,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
