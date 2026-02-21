@@ -48,8 +48,8 @@ Pipeline ETL enterprise-grade que transforma datos crudos de la peliculas que se
 📊 Databricks Dashboards (Visualización)
 ```
 
-![Arquitectura Trabajada](https://github.com/JPTQ96/Smart_Data_Databricks/blob/Dev_Construccion/evidencias/Arq_DWH_Movies.png)
-![Modelo Dimensional](https://github.com/JPTQ96/Smart_Data_Databricks/blob/Dev_Construccion/evidencias/Modelo_Estrella_Peliculas.png)
+![Arquitectura Trabajada](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/evidencias/Arq_DWH_Movies.png)
+![Modelo Dimensional](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/evidencias/Modelo_Estrella_Peliculas.png)
 
 ### 📦 Capas del Pipeline
 
@@ -321,8 +321,8 @@ Workflow: Deploy ETL Apple Sales And Warranty
 ```
 
 ### 🔄  Workflow Databricks
-![Workflow_Ejecucion](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion.png)
-![Workflow_Ejecucion_2](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion_2.png)
+![Workflow_Ejecucion](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/evidencias/WorkFlow_DWH_Peliculas_Ejecucion.png)
+![Workflow_Ejecucion_2](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/evidencias/WorkFlow_DWH_Peliculas_Ejecucion_2.png)
 ```
 
 
