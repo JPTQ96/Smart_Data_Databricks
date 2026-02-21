@@ -48,8 +48,8 @@ Pipeline ETL enterprise-grade que transforma datos crudos de la peliculas que se
 📊 Databricks Dashboards (Visualización)
 ```
 
-![Arquitectura Trabajada](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/Arq_DWH_Movies.png)
-![Modelo Dimensional]()
+![Arquitectura Trabajada](https://github.com/JPTQ96/Smart_Data_Databricks/blob/Dev_Construccion/evidencias/Arq_DWH_Movies.png)
+![Modelo Dimensional](https://github.com/JPTQ96/Smart_Data_Databricks/blob/Dev_Construccion/evidencias/Modelo_Estrella_Peliculas.png)
 
 ### 📦 Capas del Pipeline
 
@@ -124,12 +124,41 @@ Smart_Data_Databricks/
 │   ├── 🐍 Preparacion_Ambiente.ipynb   # Preparacion Ambiente
 ├── 📂 certificaciones/
 │   ├── 📄 Enlaces_Certificaciones.txt  # Enlaces con las Certificaciones Obtenidas
+├── 📂 dashboards/                      # Databricks Dashboards
+│   ├── 📊 Analisis Peliculas 2026-02-21 16_06.pdf  # PDF Dashboard
+│   ├── 📊 Analisis Peliculas.lvdash.json           # Dashboard
+│   ├── 📊 Link_Dashboard.txt                       # Link Dashboard
 ├── 📂 datasets/
 │   ├── 🔢 FilmDetails.csv    # Detalle Peliculas
 |   ├── 🔢 MoreInfo.csv       # Mas Info Peliculas
 |   ├── 🔢 Movies.csv         # Peliculas
 |   ├── 🔢 PosterPath.csv     # Ruta Posters
-│   ├── 📄 info_datasets.txt  # Informacion Detallada de Cada Fuente 
+│   ├── 📄 info_datasets.txt  # Informacion Detallada de Cada Fuente
+├── 📂 evidencias/
+│   ├── 🖼️ Analisis Peliculas 2026-02-21 16_06.pdf      # Evidencia Dashboard
+│   ├── 🖼️ Arq_DWH_Movies.png                           # Evidencia Arquitectura
+│   ├── 🖼️ Containers_Azure.png                         # Evidencia Container
+│   ├── 🖼️ Containers_Azure_Fuentes.png                 # Evidencia Fuente
+│   ├── 🖼️ Containers_Azure_Unity_Catalog.png           # Evidencia Container Unity Catalog
+│   ├── 🖼️ Containers_Azure_Unity_Catalog_Bronze.png    # Evidencia Container Bronze Zone
+│   ├── 🖼️ Containers_Azure_Unity_Catalog_Golden.png    # Evidencia Container Silver Zone
+│   ├── 🖼️ Containers_Azure_Unity_Catalog_Silver.png    # Evidencia Container Golden Zone
+│   ├── 🖼️ Databricks_DEV.png                           # Evidencia Databricks DEV
+│   ├── 🖼️ Databricks_DEV_Cluster.png                   # Evidencia Cluster DEV
+│   ├── 🖼️ Databricks_DEV_External_Data.png             # Evidencia External Data DEV
+│   ├── 🖼️ Databricks_DEV_External_Data_Credential.png  # Evidencia Credential DEV
+│   ├── 🖼️ Databricks_PROD.png                          # Evidencia Databricks PROD
+│   ├── 🖼️ Databricks_PROD_Cluster.png                  # Evidencia Cluster PROD
+│   ├── 🖼️ Databricks_Users.png                         # Evidencia Users
+│   ├── 🖼️ Databricks_Users_2.png                       # Evidencia Users
+│   ├── 🖼️ Databricks_Users_3.png                       # Evidencia Users
+│   ├── 🖼️ Git_Hub.png                                  # Evidencia Deploy Github
+│   ├── 🖼️ Grupo_De_Recursos.png                        # Evidencia Grupo Recursos
+│   ├── 🖼️ Grupo_De_Recursos_2.png                      # Evidencia Grupo Recursos
+│   ├── 🖼️ Modelo_Estrella_Peliculas.png                # Evidencia Modelo Estrella Peliculas
+│   ├── 🖼️ WorkFlow_DWH_Peliculas.png                   # Evidencia Workflow DEV / PROD
+│   ├── 🖼️ WorkFlow_DWH_Peliculas_Ejecucion.png         # Evidencia Workflow Ejecucion
+│   ├── 🖼️ WorkFlow_DWH_Peliculas_Ejecucion_2.png       # Evidencia Workflow Ejecucion
 ├── 📂 proceso/
 │   └── 📂 Peliculas/
 │   ├── 🐍 NB_Carga_Catalogo_Peliculas.ipynb           # Bronze Zone
@@ -149,10 +178,9 @@ Smart_Data_Databricks/
 ├── 📂 reversion/
 |   ├── 🐍 Reversion_Proceso.ipynb    # Reversion del Proceso
 ├── 📂 scripts/
-|   ├── 🐍     # Creacion Objetos
+|   ├── 🛢️ Scripts_Movies.sql   # Creacion Objetos
 ├── 📂 seguridad/
 |   ├── 🐍 Grant's to Consultor.ipynb    # Permisos Usuario Externo
-├── 📂 dashboards/                       # Databricks Dashboards 
 └── 📄 README.md
 ```
 
@@ -293,7 +321,6 @@ Workflow: Deploy ETL Apple Sales And Warranty
 ```
 
 ### 🔄  Workflow Databricks
-![Workflow](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas.png)
 ![Workflow_Ejecucion](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion.png)
 ![Workflow_Ejecucion_2](https://github.com/JPTQ96/Smart_Data_Databricks/blob/main/WorkFlow_DWH_Peliculas_Ejecucion_2.png)
 ```
